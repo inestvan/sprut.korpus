@@ -294,6 +294,12 @@ module ghost_cards() {
 // =====================================================================
 //  ВЫВОД
 // =====================================================================
-if (part == "box")   box();
-if (part == "bezel") translate([0, H, Z_fr + bezel_t]) rotate([180, 0, 0]) bezel_world();   // лицом на стол
-if (part == "assembly") { box(); color([0.85,0.85,0.85,0.3]) bezel_world(); ghost_monitor(); ghost_pi(); ghost_cards(); }
+section_y = -1;   // >= 0: показать разрез плоскостью Y = section_y (только для просмотра)
+
+module output() {
+  if (part == "box")   box();
+  if (part == "bezel") translate([0, H, Z_fr + bezel_t]) rotate([180, 0, 0]) bezel_world();   // лицом на стол
+  if (part == "assembly") { box(); color([0.85,0.85,0.85,0.3]) bezel_world(); ghost_monitor(); ghost_pi(); ghost_cards(); }
+}
+if (section_y >= 0) intersection() { output(); translate([-1, section_y, -1]) cube([W + 2, H + 2, 200]); }
+else output();

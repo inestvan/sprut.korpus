@@ -86,3 +86,17 @@ XT60/BNC/RJ45 в нижний борт → монитор положить сп�
 openscad -o stl/sprut_box.stl   -D 'part="box"'   cad/sprut_korpus.scad
 openscad -o stl/sprut_bezel.stl -D 'part="bezel"' cad/sprut_korpus.scad
 ```
+
+## Как закреплён монитор
+
+Без винтов: монитор зажат между полками коробки (сзади) и лицевой рамкой
+(спереди), по бокам его держат борта и внутренние стенки каналов с зазором
+1 мм. Разрезы — `preview/section_y.png` и `preview/section_x.png`.
+Между рамкой и монитором заложен зазор 0.3 мм: проложи по периметру
+вспененный двусторонний скотч 0.5–1 мм, он выберет зазор и защитит стекло.
+
+Разрезы генерируются из `cad/slice.scad` (параметры `which`, `axis`, `pos`):
+
+```bash
+openscad -o sec.svg -D 'which="box"' -D 'axis="y"' -D 'pos=76.7' cad/slice.scad
+```
