@@ -174,8 +174,8 @@ module box() {
         rbox(W, H, Z_fr, corner_r);
         translate([wall, wall, back_t]) rbox(W - 2*wall, H - 2*wall, D_in + 1, 2);
       }
-      // внутренние стенки боковых каналов (до плоскости полки) + полка с фаской
-      for (x = [x_cav0 - in_wall, x_cav1]) translate([x, wall, back_t]) cube([in_wall, cav_h, z_shelf - back_t]);
+      // внутренние стенки боковых каналов (на всю высоту: фиксируют монитор по X) + полка с фаской
+      for (x = [x_cav0 - in_wall, x_cav1]) translate([x, wall, back_t]) cube([in_wall, cav_h, Z_fr - back_t]);
       hull() { translate([x_cav0 - eps, wall, z_shelf - eps]) cube([shelf_w + eps, cav_h, eps]);
                translate([x_cav0 - eps, wall, z_shelf - shelf_w]) cube([eps, cav_h, eps]); }
       hull() { translate([x_cav1 - shelf_w, wall, z_shelf - eps]) cube([shelf_w + eps, cav_h, eps]);
