@@ -8,6 +8,7 @@ module sel() {
   if (which == "mon")   ghost_monitor();
   if (which == "pi")    ghost_pi();
   if (which == "cards") ghost_cards();
+  if (which == "plugs") ghost_plugs();
 }
 // результат: 2D, X = координата вдоль разреза, Y = глубина Z корпуса
 if (axis == "y") projection(cut=true) rotate([-90, 0, 0]) translate([0, -pos, 0]) sel();

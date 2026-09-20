@@ -305,12 +305,15 @@ module bezel_world() {
 // =====================================================================
 module ghost_monitor() {
   color([0.05,0.05,0.05,0.7]) translate([x_cav0 + clr, wall + clr, z_shelf]) cube([mon_w, mon_h, mon_t]);
-  // угловые штекеры HDMI и Type-C, торчат из бокового торца в отсек
+  ghost_plugs();
+  color([0.2,0.6,0.2,0.6]) translate([x_cav0 + mon_w/2 - 45, wall + clr + 8, z_shelf - drv_zone + 2]) cube([90, 40, drv_zone - 2]);
+}
+// угловые штекеры HDMI и Type-C, торчат из бокового торца монитора в отсек
+module ghost_plugs() {
   px = (mon_conn_side == "left") ? x_cav0 + clr - plug_len : x_cav0 + clr + mon_w;
   zc = z_shelf + mon_t - mon_conn_z;
-  color([0.9,0.3,0.1,0.9]) translate([px, wall + clr + mon_hdmi_y - 7, zc - 3.5]) cube([plug_len, 14, 7]);
-  color([0.9,0.6,0.1,0.9]) translate([px, wall + clr + mon_usbc_y - 6, zc - 3]) cube([plug_len, 12, 6]);
-  color([0.2,0.6,0.2,0.6]) translate([x_cav0 + mon_w/2 - 45, wall + clr + 8, z_shelf - drv_zone + 2]) cube([90, 40, drv_zone - 2]);
+  color([0.85,0.15,0.15,0.95]) translate([px, wall + clr + mon_hdmi_y - 7, zc - 3.5]) cube([plug_len, 14, 7]);
+  color([0.95,0.55,0.1,0.95]) translate([px, wall + clr + mon_usbc_y - 6, zc - 3]) cube([plug_len, 12, 6]);
 }
 module ghost_pi() {
   z_pcb = back_t + pi_standoff_h;
