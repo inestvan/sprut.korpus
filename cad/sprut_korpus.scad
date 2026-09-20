@@ -49,7 +49,18 @@ view_w  = 224.0;   // окно в рамке (активная область + 
 view_h  = 126.5;
 view_dx = 0.0;     // смещение окна от центра панели (+ вправо)
 view_dy = 0.0;     // (+ вверх)
-drv_zone = 12.0;   // свободная глубина за монитором под разъёмы HDMI/USB и кабели
+drv_zone = 12.0;   // свободная глубина за монитором под кабели
+// Разъёмы монитора на БОКОВОМ торце (HDMI + Type-C). Со стороны разъёмов
+// вместо узкого канала делается отсек шириной bay_w под УГЛОВЫЕ штекеры,
+// а во внутренней стенке — окно, через которое кабели уходят к Pi.
+// Координаты — от НИЖНЕГО края монитора (вид спереди). !!! Уточнить по монитору.
+mon_conn_side = "left";     // "left" | "right" — сторона разъёмов, вид спереди
+mon_conn_y    = [30, 110];  // зона окна во внутренней стенке (от нижнего края монитора)
+mon_hdmi_y    = 55;         // центр HDMI (только для макета в сборке)
+mon_usbc_y    = 85;         // центр Type-C (только для макета)
+mon_conn_z    = 7.25;       // глубина оси разъёмов от лицевого стекла (макет)
+bay_w         = 18.0;       // от торца монитора до внутренней грани наружного борта
+plug_len      = 13.0;       // выступ углового штекера от торца монитора (макет)
 // полки под длинные края панели: сегменты [x_start, длина] от левого края панели
 shelf_segs = [[0, 30], [mon_w/2 - 15, 30], [mon_w - 30, 30]];
 
@@ -106,24 +117,36 @@ vesa_screw_d = 4.3;    // M4
 // ---------------------------------------------------------------------
 // ПРОИЗВОДНЫЕ РАЗМЕРЫ
 // ---------------------------------------------------------------------
-side = ch_w + in_wall;                 // боковой канал + внутренняя стенка
+side_ch = ch_w + in_wall;              // обычный боковой канал + внутренняя стенка
+side_bay = bay_w - clr;                // отсек под штекеры (монитор на clr от внутр. стенки)
+side_l = (mon_conn_side == "left")  ? side_bay : side_ch;
+side_r = (mon_conn_side == "right") ? side_bay : side_ch;
 cav_w = mon_w + 2*clr;                 // полость под монитор (между внутр. стенками)
 cav_h = mon_h + 2*clr;
-W = cav_w + 2*side + 2*wall;           // наружная ширина
+W = cav_w + side_l + side_r + 2*wall;  // наружная ширина
 H = cav_h + 2*wall;                    // наружная высота
 pi_stack = pi_standoff_h + pi_pcb_t + pi_usb_h;                 // 23.6
 D_in  = ceil(pi_stack + 2.0 + drv_zone + mon_t + 0.3);            // внутренняя глубина
 Z_fr  = back_t + D_in;                 // плоскость прилегания рамки (верх бортов)
 z_shelf = Z_fr - (mon_t + 0.3);        // плоскость полок под панель
 D_total = Z_fr + bezel_t;
-x_cav0 = wall + side;                  // левая внутренняя стенка (грань полости)
-x_cav1 = W - wall - side;
+x_cav0 = wall + side_l;                // левая внутренняя стенка (грань полости)
+x_cav1 = W - wall - side_r;
+// окно под кабели во внутренней стенке со стороны разъёмов (мировые Y)
+conn_y0 = wall + clr + mon_conn_y[0];
+conn_y1 = wall + clr + mon_conn_y[1];
 
 echo(str("НАРУЖНЫЙ ГАБАРИТ: ", W, " x ", H, " x ", D_total, " мм (ШxВxГ), рамка ", bezel_t, " мм"));
 echo(str("Полость под монитор: ", cav_w, " x ", cav_h, ", глубина коробки ", D_in));
 
 // бобышки: по 3 в каждом боковом канале
-boss_pts = [for (x = [wall + ch_w/2, W - wall - ch_w/2], y = [wall + ch_w/2, H/2, H - wall - ch_w/2]) [x, y]];
+// бобышки: со стороны отсека средняя бобышка убрана из зоны разъёмов и заменена
+// двумя — ниже и выше окна; с другой стороны — три (низ, середина, верх)
+boss_ys_ch  = [wall + ch_w/2, H/2, H - wall - ch_w/2];
+boss_ys_bay = [wall + ch_w/2, conn_y0 - ch_w/2 - 2, conn_y1 + ch_w/2 + 2, H - wall - ch_w/2];
+boss_pts = concat(
+  [for (y = (mon_conn_side == "left")  ? boss_ys_bay : boss_ys_ch) [wall + ch_w/2, y]],
+  [for (y = (mon_conn_side == "right") ? boss_ys_bay : boss_ys_ch) [W - wall - ch_w/2, y]]);
 
 // Raspberry Pi: поворот -90°: мир_x = pi_x0 + py, мир_y = pi_y0 + (85 - px)
 pi_x0 = x_cav1 - 2.0 - pi_w;
@@ -192,6 +215,9 @@ module box() {
       translate([dcdc_pos[0], dcdc_pos[1], back_t - eps]) rotate([0,0,dcdc_rot]) card_holder(dcdc_l, dcdc_w, dcdc_pcb_t);
       translate([rs_pos[0],   rs_pos[1],   back_t - eps]) rotate([0,0,rs_rot])   card_holder(rs_l,   rs_w,   rs_pcb_t);
     }
+    // окно во внутренней стенке и полке со стороны разъёмов: кабели из отсека к Pi
+    conn_x = (mon_conn_side == "left") ? x_cav0 - in_wall - 1 : x_cav1 - shelf_w - 1;
+    translate([conn_x, conn_y0, back_t]) cube([in_wall + shelf_w + 2, conn_y1 - conn_y0, Z_fr - back_t + 1]);
     // отверстия под вставки
     for (p = boss_pts) translate([p[0], p[1], Z_fr - insert_depth]) cylinder(d=insert_d, h=insert_depth + 1);
     // саморезы Pi
@@ -279,6 +305,11 @@ module bezel_world() {
 // =====================================================================
 module ghost_monitor() {
   color([0.05,0.05,0.05,0.7]) translate([x_cav0 + clr, wall + clr, z_shelf]) cube([mon_w, mon_h, mon_t]);
+  // угловые штекеры HDMI и Type-C, торчат из бокового торца в отсек
+  px = (mon_conn_side == "left") ? x_cav0 + clr - plug_len : x_cav0 + clr + mon_w;
+  zc = z_shelf + mon_t - mon_conn_z;
+  color([0.9,0.3,0.1,0.9]) translate([px, wall + clr + mon_hdmi_y - 7, zc - 3.5]) cube([plug_len, 14, 7]);
+  color([0.9,0.6,0.1,0.9]) translate([px, wall + clr + mon_usbc_y - 6, zc - 3]) cube([plug_len, 12, 6]);
   color([0.2,0.6,0.2,0.6]) translate([x_cav0 + mon_w/2 - 45, wall + clr + 8, z_shelf - drv_zone + 2]) cube([90, 40, drv_zone - 2]);
 }
 module ghost_pi() {
