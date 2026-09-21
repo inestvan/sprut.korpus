@@ -2,52 +2,59 @@
 <defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,4 L8,1 L8,7 z" fill="#c0392b"/></marker></defs>
 <rect x="-78" y="-78" width="100%" height="100%" fill="#fff"/>
 <text x="0" y="-48" font-size="24" font-weight="bold">Компоновка внутри корпуса, вид со стороны экрана (монитор и рамка сняты)</text>
-<text x="0" y="-24" font-size="15" fill="#555">Корпус 272.2 x 153.4 мм. Зелёным — зоны, которые должны оставаться свободными.</text>
+<text x="0" y="-24" font-size="15" fill="#555">Корпус 272.2 x 153.4 мм. Разъёмы монитора KEPIFO JRP1133 — на правом торце, поэтому отсек справа, Raspberry Pi слева. Зелёным — зоны, которые должны оставаться свободными.</text>
 <rect x="0.0" y="0.0" width="1415.44" height="797.6800000000001" fill="#cfd8e3" stroke="#2c3e50" stroke-width="1.248"/>
 <rect x="15.600000000000001" y="15.600000000000001" width="1384.24" height="766.48" fill="#ffffff" stroke="#2c3e50" stroke-width="1.04"/>
-<rect x="15.600000000000001" y="15.600000000000001" width="88.4" height="766.48" fill="#e9f7ec" stroke="#2e7d32" stroke-width="1.248" stroke-dasharray="5 4"/>
-<text x="57.2" y="402.48" font-size="15" fill="#2e7d32" text-anchor="middle" transform="rotate(-90 57.2 402.48)">отсек 18 мм под штекеры: стенки на уровне монитора нет</text>
-<rect x="93.60000000000001" y="204.88000000000002" width="10.4" height="416.0" fill="#ffffff" stroke="#b8860b" stroke-width="1.04" stroke-dasharray="4 3"/>
-<text x="130.0" y="412.88000000000005" font-size="13" fill="#8a6d0b" text-anchor="start">окно под кабели 80 мм (ниже полки)</text>
-<rect x="1347.84" y="15.600000000000001" width="10.4" height="766.48" fill="#cfd8e3" stroke="#546e7a" stroke-width="1.04"/>
+<rect x="1311.44" y="15.600000000000001" width="88.4" height="766.48" fill="#e9f7ec" stroke="#2e7d32" stroke-width="1.248" stroke-dasharray="5 4"/>
+<text x="1357.2" y="402.48" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="normal" transform="rotate(-90 1357.2 402.48)">отсек 18 мм под угловые штекеры: стенки на уровне монитора нет</text>
+<rect x="1311.44" y="74.88000000000004" width="10.4" height="442.0" fill="#ffffff" stroke="#b8860b" stroke-width="1.04" stroke-dasharray="4 3"/>
+<text x="1294.8" y="298.48" font-size="12" fill="#8a6d0b" text-anchor="end" font-weight="normal">окно под кабели 85 мм, ниже полки</text>
+<rect x="1311.44" y="438.88000000000005" width="20.8" height="31.200000000000003" fill="#d33" stroke="#600" stroke-width="0.8320000000000001"/>
+<text x="1294.8" y="462.28000000000003" font-size="12" fill="#600" text-anchor="end" font-weight="normal">HDMI 62</text>
+<rect x="1311.44" y="350.48" width="20.8" height="31.200000000000003" fill="#f90" stroke="#600" stroke-width="0.8320000000000001"/>
+<text x="1294.8" y="373.88000000000005" font-size="12" fill="#600" text-anchor="end" font-weight="normal">Type-C 79</text>
+<rect x="1311.44" y="272.48" width="20.8" height="31.200000000000003" fill="#888" stroke="#600" stroke-width="0.8320000000000001"/>
+<text x="1294.8" y="295.88000000000005" font-size="12" fill="#600" text-anchor="end" font-weight="normal">колёсико 94</text>
+<rect x="1311.44" y="116.48000000000003" width="20.8" height="31.200000000000003" fill="#f90" stroke="#600" stroke-width="0.8320000000000001"/>
+<text x="1294.8" y="139.88000000000002" font-size="12" fill="#600" text-anchor="end" font-weight="normal">Type-C 124</text>
+<rect x="57.2" y="15.600000000000001" width="10.4" height="766.48" fill="#cfd8e3" stroke="#546e7a" stroke-width="1.04"/>
 <circle cx="36.4" cy="761.2800000000001" r="21.840000000000003" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>
 <circle cx="36.4" cy="761.2800000000001" r="10.4" fill="#fff" stroke="#455a64" stroke-width="1"/>
+<circle cx="36.4" cy="398.84000000000003" r="21.840000000000003" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>
+<circle cx="36.4" cy="398.84000000000003" r="10.4" fill="#fff" stroke="#455a64" stroke-width="1"/>
 <circle cx="36.4" cy="36.4" r="21.840000000000003" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>
 <circle cx="36.4" cy="36.4" r="10.4" fill="#fff" stroke="#455a64" stroke-width="1"/>
 <circle cx="1379.04" cy="761.2800000000001" r="21.840000000000003" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>
 <circle cx="1379.04" cy="761.2800000000001" r="10.4" fill="#fff" stroke="#455a64" stroke-width="1"/>
-<circle cx="1379.04" cy="398.84000000000003" r="21.840000000000003" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>
-<circle cx="1379.04" cy="398.84000000000003" r="10.4" fill="#fff" stroke="#455a64" stroke-width="1"/>
 <circle cx="1379.04" cy="36.4" r="21.840000000000003" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>
 <circle cx="1379.04" cy="36.4" r="10.4" fill="#fff" stroke="#455a64" stroke-width="1"/>
 <text x="36.4" y="865.2800000000001" font-size="12" fill="#455a64" text-anchor="middle" font-weight="normal">винт M3</text>
 <text x="1379.04" y="865.2800000000001" font-size="12" fill="#455a64" text-anchor="middle" font-weight="normal">винт M3</text>
-<rect x="1046.24" y="23.400000000000002" width="291.2" height="442.0" fill="#1b5e20" stroke="#0b3d0f" stroke-width="1.248"/>
-<text x="1190.8" y="215.28000000000003" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Raspberry Pi 4B</text>
-<text x="1190.8" y="256.88000000000005" font-size="13" fill="#dfe" text-anchor="middle" font-weight="normal">56 x 85</text>
-<text x="1190.8" y="48.88000000000003" font-size="12" fill="#dfe" text-anchor="middle" font-weight="normal">microSD</text>
-<rect x="1058.98" y="460.2" width="68.12" height="18.2" fill="#cfd8dc" stroke="#455a64" stroke-width="1.04"/>
-<text x="1093.04" y="516.88" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">USB</text>
-<rect x="1152.58" y="460.2" width="68.12" height="18.2" fill="#cfd8dc" stroke="#455a64" stroke-width="1.04"/>
-<text x="1186.6399999999999" y="516.88" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">USB</text>
-<rect x="1242.54" y="460.2" width="83.2" height="18.2" fill="#cfd8dc" stroke="#455a64" stroke-width="1.04"/>
-<text x="1284.1399999999999" y="516.88" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">ETH</text>
-<rect x="1046.24" y="478.40000000000003" width="291.2" height="303.68" fill="#e9f7ec" stroke="#2e7d32" stroke-width="1.248" stroke-dasharray="6 4"/>
-<text x="1190.8" y="631.2800000000001" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="normal">свободно под вилки</text>
-<text x="1190.8" y="672.8800000000001" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="normal">USB и Ethernet</text>
-<line x1="1362.4" y1="782.08" x2="1362.4" y2="478.40000000000003" stroke="#c0392b" stroke-width="2" marker-start="url(#a)" marker-end="url(#a)"/><text x="1362.4" y="624.24" font-size="15" font-weight="bold" fill="#c0392b" text-anchor="middle">58.4</text>
-<rect x="252.20000000000002" y="503.88000000000005" width="223.6" height="109.2" fill="#283593" stroke="#1a237e" stroke-width="1.04"/>
-<text x="364.0" y="568.88" font-size="13" fill="#fff" text-anchor="middle" font-weight="normal">DC-DC 60V</text>
-<rect x="275.6" y="314.08000000000004" width="176.8" height="93.60000000000001" fill="#283593" stroke="#1a237e" stroke-width="1.04"/>
-<text x="364.0" y="371.28000000000003" font-size="13" fill="#fff" text-anchor="middle" font-weight="normal">RS485</text>
-<text x="364.0" y="464.88000000000005" font-size="12" fill="#3949ab" text-anchor="middle" font-weight="normal">платы вдвигаются сбоку →</text>
-<rect x="155.74" y="782.08" width="83.72000000000001" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
-<text x="197.6" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">XT60</text>
-<rect x="369.46" y="782.08" width="51.480000000000004" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
-<text x="395.2" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">BNC</text>
-<rect x="517.92" y="782.08" width="87.36000000000001" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
-<text x="561.6" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">RJ45</text>
-<text x="1190.8" y="865.2800000000001" font-size="13" fill="#607d8b" text-anchor="middle" font-weight="normal">вентиляция</text>
-
-
+<rect x="78.0" y="332.28000000000003" width="291.2" height="442.0" fill="#1b5e20" stroke="#0b3d0f" stroke-width="1.248"/>
+<text x="223.6" y="563.6800000000001" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">Raspberry Pi 4B</text>
+<text x="223.6" y="605.2800000000001" font-size="12" fill="#dfe" text-anchor="middle" font-weight="normal">56 x 85, порты вверх</text>
+<text x="223.6" y="750.8800000000001" font-size="11" fill="#dfe" text-anchor="middle" font-weight="normal">microSD</text>
+<text x="374.40000000000003" y="485.68000000000006" font-size="11" fill="#dfe" text-anchor="start" font-weight="normal" transform="rotate(-90 374.40000000000003 485.68000000000006)">USB-C / micro-HDMI / аудио →</text>
+<rect x="288.34000000000003" y="319.28000000000003" width="68.12" height="13.0" fill="#cfd8dc" stroke="#455a64" stroke-width="1.04"/>
+<text x="322.40000000000003" y="298.48" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">USB</text>
+<rect x="194.74" y="319.28000000000003" width="68.12" height="13.0" fill="#cfd8dc" stroke="#455a64" stroke-width="1.04"/>
+<text x="228.8" y="298.48" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">USB</text>
+<rect x="89.7" y="319.28000000000003" width="83.2" height="13.0" fill="#cfd8dc" stroke="#455a64" stroke-width="1.04"/>
+<text x="131.3" y="298.48" font-size="12" fill="#37474f" text-anchor="middle" font-weight="normal">ETH</text>
+<rect x="78.0" y="15.600000000000037" width="291.2" height="303.68" fill="#e9f7ec" stroke="#2e7d32" stroke-width="1.248" stroke-dasharray="6 4"/>
+<text x="223.6" y="147.68000000000004" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="normal">свободно под вилки</text>
+<text x="223.6" y="189.28000000000003" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="normal">USB и Ethernet</text>
+<line x1="395.2" y1="319.28000000000003" x2="395.2" y2="15.600000000000001" stroke="#c0392b" stroke-width="2" marker-start="url(#a)" marker-end="url(#a)"/><text x="395.2" y="161.44000000000003" font-size="15" font-weight="bold" fill="#c0392b" text-anchor="middle">58.4</text>
+<rect x="605.8000000000001" y="503.88000000000005" width="223.6" height="109.2" fill="#283593" stroke="#1a237e" stroke-width="1.04"/>
+<text x="717.6" y="568.88" font-size="13" fill="#fff" text-anchor="middle" font-weight="normal">DC-DC 60V</text>
+<rect x="629.2" y="314.08000000000004" width="176.8" height="93.60000000000001" fill="#283593" stroke="#1a237e" stroke-width="1.04"/>
+<text x="717.6" y="371.28000000000003" font-size="13" fill="#fff" text-anchor="middle" font-weight="normal">RS485</text>
+<text x="717.6" y="464.88000000000005" font-size="12" fill="#3949ab" text-anchor="middle" font-weight="normal">платы вдвигаются сбоку →</text>
+<rect x="415.74" y="782.08" width="83.72000000000001" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
+<text x="457.6" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">XT60</text>
+<rect x="629.46" y="782.08" width="51.480000000000004" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
+<text x="655.2" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">BNC</text>
+<rect x="777.92" y="782.08" width="87.36000000000001" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
+<text x="821.6" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">RJ45</text>
+<text x="223.6" y="865.2800000000001" font-size="12" fill="#607d8b" text-anchor="middle" font-weight="normal">вентиляция под Pi</text>
 </svg>

@@ -50,15 +50,21 @@ view_h  = 126.5;
 view_dx = 0.0;     // смещение окна от центра панели (+ вправо)
 view_dy = 0.0;     // (+ вверх)
 drv_zone = 12.0;   // свободная глубина за монитором под кабели
-// Разъёмы монитора на БОКОВОМ торце (HDMI + Type-C). Со стороны разъёмов
-// вместо узкого канала делается отсек шириной bay_w под УГЛОВЫЕ штекеры,
-// а во внутренней стенке — окно, через которое кабели уходят к Pi.
-// Координаты — от НИЖНЕГО края монитора (вид спереди). !!! Уточнить по монитору.
-mon_conn_side = "left";     // "left" | "right" — сторона разъёмов, вид спереди
-mon_conn_y    = [30, 110];  // зона окна во внутренней стенке (от нижнего края монитора)
-mon_hdmi_y    = 55;         // центр HDMI (только для макета в сборке)
-mon_usbc_y    = 85;         // центр Type-C (только для макета)
-mon_conn_z    = 7.25;       // глубина оси разъёмов от лицевого стекла (макет)
+// Разъёмы монитора KEPIFO JRP1133 (по фото производителя, см. docs/components.md):
+// все на ПРАВОМ торце (вид спереди), по центру толщины. От НИЖНЕГО края:
+//   HDMI 62, Type-C 79, колёсико меню 94, Type-C 124 (±2 мм).
+// Со стороны разъёмов вместо узкого канала — отсек шириной bay_w под угловые
+// штекеры; на уровне монитора там нет стенки; ниже полки в стенке окно под кабели.
+mon_conn_side = "right";    // "left" | "right" — сторона разъёмов, вид спереди
+mon_conn_y    = [50, 135];  // окно под кабели в стенке ниже полки (от нижнего края монитора)
+mon_hdmi_y    = 62;         // центр HDMI (макет)
+mon_usbc_y    = 79;         // центр Type-C питания (макет)
+mon_usbc2_y   = 124;        // второй Type-C (макет)
+mon_wheel_y   = 94;         // колёсико меню/яркости
+mon_conn_z    = 6.7;        // ось разъёмов от лицевого стекла (середина толщины 13.4)
+wheel_slot    = true;       // прорезь в наружном борту напротив колёсика, чтобы крутить его стилусом
+wheel_slot_l  = 22;         // длина прорези вдоль торца
+wheel_slot_h  = 8;          // высота прорези по глубине корпуса
 bay_w         = 18.0;       // от торца монитора до внутренней грани наружного борта
 plug_len      = 13.0;       // выступ углового штекера от торца монитора (макет)
 // полки под длинные края панели: сегменты [x_start, длина] от левого края панели
@@ -151,8 +157,9 @@ conn_y1 = wall + clr + mon_conn_y[1];
 
 echo(str("НАРУЖНЫЙ ГАБАРИТ: ", W, " x ", H, " x ", D_total, " мм (ШxВxГ), рамка ", bezel_t, " мм"));
 echo(str("Полость под монитор: ", cav_w, " x ", cav_h, ", глубина коробки ", D_in));
-echo(str("Pi: окно в борту: ", pi_ports_window ? "ДА" : "нет",
-         ", свободно перед разъёмами USB/ETH: ", pi_edge_gap - pi_port_overhang, " мм"));
+echo(str("Pi ", pi_at_left ? "СЛЕВА, порты к верхнему борту" : "СПРАВА, порты к нижнему борту",
+         "; окно в борту: ", pi_ports_window ? "ДА" : "нет",
+         "; свободно перед разъёмами USB/ETH: ", pi_edge_gap - pi_port_overhang, " мм"));
 echo(str("Держатели: просвет паза DC-DC ", dcdc_w + dcdc_gap_w, " x ", dcdc_pcb_t + dcdc_gap_t,
          ", RS485 ", rs_w + rs_gap_w, " x ", rs_pcb_t + rs_gap_t));
 echo(str("Отсек разъёмов: свободно от торца монитора ", bay_w, " мм на высоту ", Z_fr - z_shelf, " мм"));
@@ -168,22 +175,34 @@ boss_pts = concat(
   [for (y = (mon_conn_side == "left")  ? boss_ys_bay : boss_ys_ch) [wall + ch_w/2, y]],
   [for (y = (mon_conn_side == "right") ? boss_ys_bay : boss_ys_ch) [W - wall - ch_w/2, y]]);
 
-// Raspberry Pi: поворот -90°: мир_x = pi_x0 + py, мир_y = pi_y0 + (85 - px)
-pi_x0 = x_cav1 - 2.0 - pi_w;
+// Raspberry Pi стоит у стороны, ПРОТИВОПОЛОЖНОЙ отсеку разъёмов монитора,
+// так её длинный торец с USB-C/micro-HDMI/аудио всегда смотрит внутрь корпуса.
+//   отсек слева  -> Pi справа, торец USB/ETH к нижнему борту (pi_rot = 0):
+//                   мир_x = pi_x0 + py, мир_y = pi_y0 + (85 - px)
+//   отсек справа -> Pi слева, торец USB/ETH к ВЕРХНЕМУ борту (pi_rot = 180):
+//                   мир_x = pi_x0 + (56 - py), мир_y = pi_y0 + px
+pi_at_left = (mon_conn_side == "right");
+pi_rot = pi_at_left ? 180 : 0;
+pi_x0 = pi_at_left ? x_cav0 + 2.0 : x_cav1 - 2.0 - pi_w;
 // зазор перед разъёмами USB/ETH: вся высота полости, что осталась от платы
 pi_edge_gap = pi_ports_window ? 1.0 : (cav_h - pi_l - pi_far_gap);
-pi_y0 = wall + pi_edge_gap;
-pi_holes = [for (px=[pi_hole_off, pi_hole_off + pi_hole_dx], py=[pi_hole_off, pi_hole_off + pi_hole_dy]) [pi_x0 + py, pi_y0 + pi_l - px]];
+pi_y0 = pi_at_left ? wall + pi_far_gap : wall + pi_edge_gap;
+function pi_pt(px, py) = (pi_rot == 0) ? [pi_x0 + py, pi_y0 + pi_l - px] : [pi_x0 + pi_w - py, pi_y0 + px];
+pi_holes = [for (px=[pi_hole_off, pi_hole_off + pi_hole_dx], py=[pi_hole_off, pi_hole_off + pi_hole_dy]) pi_pt(px, py)];
+pi_ports_y = (pi_rot == 0) ? pi_y0 - pi_port_overhang : pi_y0 + pi_l + pi_port_overhang;   // плоскость торцов USB/ETH
 
-// разъёмы на нижнем борту: X центра, Z центра
+// разъёмы на нижнем борту: X центра, Z центра. При Pi слева сдвинуты правее,
+// чтобы их тела внутри корпуса не попадали под плату Pi.
 conn_z = back_t + 12.0;
-xt_x  = x_cav0 + 18.0;
-bnc_x = x_cav0 + 56.0;
-rj_x  = x_cav0 + 88.0;
+conn_x0 = pi_at_left ? x_cav0 + 75.0 : x_cav0 + 18.0;
+xt_x  = conn_x0;
+bnc_x = conn_x0 + 38.0;
+rj_x  = conn_x0 + 70.0;
 
 // держатели модулей на задней стенке (центр платы, поворот)
-dcdc_pos = [x_cav0 + 50.0, 46.0];  dcdc_rot = 0;
-rs_pos   = [x_cav0 + 50.0, 84.0];  rs_rot   = 0;
+hold_x = pi_at_left ? x_cav0 + 125.0 : x_cav0 + 50.0;
+dcdc_pos = [hold_x, 46.0];  dcdc_rot = 0;
+rs_pos   = [hold_x, 84.0];  rs_rot   = 0;
 
 // =====================================================================
 //  ВСПОМОГАТЕЛЬНЫЕ
@@ -258,9 +277,16 @@ module box() {
     // вентиляция: верхний борт
     translate([0, H - wall - 1, 0]) slot_row(x_cav0 + 10, x_cav1 - 10, back_t + 4, back_t + 18);
     // вентиляция: задняя стенка — под процессором Pi и рядом с DC-DC
-    for (i=[0:5]) back_slot(pi_x0 + 8 + i*6, pi_y0 + pi_l - 40, 22);
+    for (i=[0:5]) back_slot(pi_x0 + 8 + i*6, pi_y0 + pi_l/2, 22);
     for (i=[0:4]) back_slot(dcdc_pos[0] + dcdc_l/2 + 8 + i*6, dcdc_pos[1], 20);
     for (i=[0:2]) back_slot(dcdc_pos[0] - dcdc_l/2 - 8 - i*6, dcdc_pos[1], 20);
+    // прорезь под колёсико меню монитора в наружном борту со стороны отсека
+    if (wheel_slot) {
+      wx = (mon_conn_side == "left") ? -1 : W - wall - 1;
+      wz = z_shelf + mon_t - mon_conn_z;
+      translate([wx, wall + clr + mon_wheel_y, wz]) rotate([0, 90, 0]) linear_extrude(wall + 2)
+        hull() for (s=[-1,1]) translate([0, s*(wheel_slot_l - wheel_slot_h)/2]) circle(d=wheel_slot_h);
+    }
     // VESA
     if (vesa > 0) for (sx=[-1,1], sy=[-1,1]) translate([W/2 + sx*vesa/2, H/2 + sy*vesa/2, -1]) cylinder(d=vesa_screw_d, h=back_t + 2);
   }
@@ -288,11 +314,12 @@ module rj45_cut() {
     offset(r=1) offset(delta=-1) square([rj_w + 2*rj_clr, rj_h + 2*rj_clr], center=true);
 }
 module pi_port_window() {
-  x0 = pi_x0 + pi_usb2_y - pi_usb_w/2 - pi_win_clr;
-  x1 = pi_x0 + pi_eth_y + pi_eth_w/2 + pi_win_clr;
+  xa = pi_pt(pi_l, pi_usb2_y - pi_usb_w/2)[0]; xb = pi_pt(pi_l, pi_eth_y + pi_eth_w/2)[0];
+  x0 = min(xa, xb) - pi_win_clr; x1 = max(xa, xb) + pi_win_clr;
   z0 = back_t + pi_standoff_h - 1.0;
   z1 = back_t + pi_standoff_h + pi_pcb_t + pi_usb_h + pi_win_clr;
-  translate([x0, -1, z0]) cube([x1 - x0, wall + 2, z1 - z0]);
+  yw = (pi_rot == 0) ? -1 : H - wall - 1;
+  translate([x0, yw, z0]) cube([x1 - x0, wall + 2, z1 - z0]);
 }
 
 // Держатель платы-«карты»: две направляющие с пазом, торцевой упор, плата
@@ -358,13 +385,15 @@ module ghost_plugs() {
   zc = z_shelf + mon_t - mon_conn_z;
   color([0.85,0.15,0.15,0.95]) translate([px, wall + clr + mon_hdmi_y - 7, zc - 3.5]) cube([plug_len, 14, 7]);
   color([0.95,0.55,0.1,0.95]) translate([px, wall + clr + mon_usbc_y - 6, zc - 3]) cube([plug_len, 12, 6]);
+  color([0.6,0.6,0.6,0.8])    translate([px + plug_len - 3, wall + clr + mon_wheel_y - 5, zc - 2.5]) cube([3, 10, 5]);   // колёсико
 }
 module ghost_pi() {
   z_pcb = back_t + pi_standoff_h;
   color([0,0.5,0.2,0.8]) translate([pi_x0, pi_y0, z_pcb]) cube([pi_w, pi_l, pi_pcb_t]);
-  color([0.8,0.8,0.8,0.8]) {
-    for (x=[pi_usb2_y, pi_usb3_y]) translate([pi_x0 + x - pi_usb_w/2, pi_y0 - pi_port_overhang, z_pcb + pi_pcb_t]) cube([pi_usb_w, 17.4, pi_usb_h]);
-    translate([pi_x0 + pi_eth_y - pi_eth_w/2, pi_y0 - pi_port_overhang, z_pcb + pi_pcb_t]) cube([pi_eth_w, 21.4, pi_eth_h]);
+  color([0.8,0.8,0.8,0.8]) for (c = [[pi_usb2_y, pi_usb_w, 17.4, pi_usb_h], [pi_usb3_y, pi_usb_w, 17.4, pi_usb_h], [pi_eth_y, pi_eth_w, 21.4, pi_eth_h]]) {
+    xc = pi_pt(pi_l, c[0])[0];
+    yb = (pi_rot == 0) ? pi_y0 - pi_port_overhang : pi_y0 + pi_l + pi_port_overhang - c[2];
+    translate([xc - c[1]/2, yb, z_pcb + pi_pcb_t]) cube([c[1], c[2], c[3]]);
   }
 }
 module ghost_cards() {
