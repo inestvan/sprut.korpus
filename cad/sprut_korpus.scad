@@ -67,8 +67,8 @@ shelf_segs = [[0, 30], [mon_w/2 - 15, 30], [mon_w - 30, 30]];
 // ---------------------------------------------------------------------
 // ПАРАМЕТРЫ — Raspberry Pi 4B (официальный чертёж, datasheet rev 1.1)
 // Pi лежит на задней стенке, компонентами к экрану, торцом USB/ETH к
-// нижнему борту. По умолчанию полностью внутри корпуса: USB и Ethernet
-// подключаются внутри (патч-корд на панельный RJ45), окна в борту нет.
+// нижнему борту. Плата придвинута вплотную к борту, USB и Ethernet выходят
+// наружу через окно: штекеры втыкаются снаружи и не занимают места внутри.
 // ---------------------------------------------------------------------
 pi_l = 85.0;  pi_w = 56.0;  pi_pcb_t = 1.6;
 pi_hole_dx = 58.0; pi_hole_dy = 49.0; pi_hole_off = 3.5;
@@ -77,8 +77,9 @@ pi_screw_d    = 2.2;   // саморез M2.5 в PETG (2.0 — под метчи
 pi_usb2_y = 9.0;  pi_usb3_y = 27.0;  pi_eth_y = 45.75;   // центры по короткой стороне
 pi_usb_w  = 13.1; pi_usb_h = 16.0;   pi_eth_w = 16.0; pi_eth_h = 13.5;
 pi_port_overhang = 2.5;   // выступ USB/ETH за край платы
-pi_ports_window = false;  // true: окно в нижнем борту под USB/ETH; false: Pi полностью внутри
-pi_edge_gap = pi_ports_window ? 1.0 : 35.0;   // торец USB/ETH до борта: 1 мм (в окно) или 35 мм под кабели внутри
+pi_ports_window = true;   // true: окно в нижнем борту под USB/ETH; false: Pi полностью внутри
+pi_edge_gap = pi_ports_window ? 1.0 : 45.0;   // торец платы до борта: 1 мм (порты в окно) или 45 мм под кабели внутри
+pi_win_clr  = 1.5;        // зазор окна вокруг разъёмов Pi на сторону
 
 // ---------------------------------------------------------------------
 // ПАРАМЕТРЫ — DC-DC 60V/3A buck (CR-6030L). Габарит платы — ОЦЕНКА по фото
@@ -90,6 +91,11 @@ dcdc_l = 43.0;  dcdc_w = 21.0;  dcdc_pcb_t = 1.6;  dcdc_comp_h = 13.0;
 // ПАРАМЕТРЫ — RS485-TTL модуль (по фото продавца 34 x 18 x 9)
 // ---------------------------------------------------------------------
 rs_l = 34.0;  rs_w = 18.0;  rs_pcb_t = 1.6;  rs_comp_h = 8.0;
+
+// Зазоры в держателях плат. Если плата входит туго — увеличь card_gap_w.
+card_gap_w = 0.9;   // суммарный зазор по ширине платы (просвет = ширина + это)
+card_gap_t = 0.4;   // зазор по толщине платы
+card_lead  = 4.0;   // длина заходной фаски на открытом конце паза
 
 // ---------------------------------------------------------------------
 // ПАРАМЕТРЫ — панельные разъёмы (нижний борт)
@@ -138,6 +144,8 @@ conn_y1 = wall + clr + mon_conn_y[1];
 
 echo(str("НАРУЖНЫЙ ГАБАРИТ: ", W, " x ", H, " x ", D_total, " мм (ШxВxГ), рамка ", bezel_t, " мм"));
 echo(str("Полость под монитор: ", cav_w, " x ", cav_h, ", глубина коробки ", D_in));
+echo(str("Pi: торец разъёмов на Y=", pi_y0 - pi_port_overhang, ", окно в борту: ", pi_ports_window ? "ДА" : "нет"));
+echo(str("Держатели: просвет паза DC-DC ", dcdc_w + card_gap_w, ", RS485 ", rs_w + card_gap_w, " (по толщине ", rs_pcb_t + card_gap_t, ")"));
 
 // бобышки: по 3 в каждом боковом канале
 // бобышки: со стороны отсека средняя бобышка убрана из зоны разъёмов и заменена
@@ -262,23 +270,33 @@ module rj45_cut() {
     offset(r=1) offset(delta=-1) square([rj_w + 2*rj_clr, rj_h + 2*rj_clr], center=true);
 }
 module pi_port_window() {
-  x0 = pi_x0 + pi_usb2_y - pi_usb_w/2 - 1.5;
-  x1 = pi_x0 + pi_eth_y + pi_eth_w/2 + 1.5;
+  x0 = pi_x0 + pi_usb2_y - pi_usb_w/2 - pi_win_clr;
+  x1 = pi_x0 + pi_eth_y + pi_eth_w/2 + pi_win_clr;
   z0 = back_t + pi_standoff_h - 1.0;
-  z1 = back_t + pi_standoff_h + pi_pcb_t + pi_usb_h + 1.5;
+  z1 = back_t + pi_standoff_h + pi_pcb_t + pi_usb_h + pi_win_clr;
   translate([x0, -1, z0]) cube([x1 - x0, wall + 2, z1 - z0]);
 }
 
 // Держатель платы-«карты»: две направляющие с пазом, торцевой упор, плата
 // вдвигается с открытого конца (+X). Локально: длина по X, ширина по Y, Z вверх.
 module card_holder(l, w, t) {
-  rail = 2.5; grip = 1.5; gap = 0.35; z_low = 2.0; hh = z_low + t + gap + 2.0;
-  for (s=[-1,1]) translate([0, s*(w/2 - grip + rail/2), 0]) difference() {
+  rail = 2.5; grip = 1.5; z_low = 2.0;
+  ch = t + card_gap_t;              // высота паза
+  yw = w + card_gap_w;              // просвет паза по ширине (грани на ±yw/2)
+  hh = z_low + ch + 2.0;
+  x_end = l/2 + 2;                  // открытый конец, сюда вдвигается плата
+  for (s=[-1,1]) translate([0, s*(yw/2 - grip + rail/2), 0]) difference() {
     translate([-l/2 - 2, -rail/2, 0]) cube([l + 4, rail, hh]);
-    translate([-l/2 - 3, s > 0 ? -rail/2 - 1 : rail/2 - grip - gap/2, z_low]) cube([l + 6, grip + 1 + gap/2, t + gap]);
+    y0 = (s > 0) ? -rail/2 - 1 : rail/2 - grip;
+    translate([-l/2 - 3, y0, z_low]) cube([l + 6, grip + 1, ch]);
+    // заходная фаска: к открытому концу паз раскрывается по высоте
+    hull() {
+      translate([x_end - card_lead, y0, z_low]) cube([eps, grip + 1, ch]);
+      translate([x_end - eps, y0, z_low - card_lead/4]) cube([eps, grip + 1, ch + card_lead/2]);
+    }
   }
-  translate([-l/2 - 4, -w/2 - 1, 0]) cube([2, w + 2, hh]);           // торцевой упор
-  translate([-l/2 - 4, -w/2 - 1, 0]) cube([l + 8, w + 2, 0.8]);      // основание
+  translate([-l/2 - 4, -yw/2 - 1, 0]) cube([2, yw + 2, hh]);           // торцевой упор
+  translate([-l/2 - 4, -yw/2 - 1, 0]) cube([l + 8, yw + 2, 0.8]);      // основание
 }
 
 // =====================================================================
