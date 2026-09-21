@@ -2,12 +2,12 @@
 <defs><marker id="a" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,4 L8,1 L8,7 z" fill="#c0392b"/></marker></defs>
 <rect x="-78" y="-78" width="100%" height="100%" fill="#fff"/>
 <text x="0" y="-48" font-size="24" font-weight="bold">Компоновка внутри корпуса, вид со стороны экрана (монитор и рамка сняты)</text>
-<text x="0" y="-24" font-size="15" fill="#555">Корпус 272.2 x 153.4 мм. Разъёмы монитора KEPIFO JRP1133 — на правом торце, поэтому отсек справа, Raspberry Pi слева. Зелёным — зоны, которые должны оставаться свободными.</text>
+<text x="0" y="-24" font-size="15" fill="#555">Корпус 272.2 x 153.4 мм. Разъёмы монитора (Display-A) — на правом торце, поэтому отсек справа, Raspberry Pi слева. Зелёным — зоны, которые должны оставаться свободными.</text>
 <rect x="0.0" y="0.0" width="1415.44" height="797.6800000000001" fill="#cfd8e3" stroke="#2c3e50" stroke-width="1.248"/>
 <rect x="15.600000000000001" y="15.600000000000001" width="1384.24" height="766.48" fill="#ffffff" stroke="#2c3e50" stroke-width="1.04"/>
 <rect x="1311.44" y="15.600000000000001" width="88.4" height="766.48" fill="#e9f7ec" stroke="#2e7d32" stroke-width="1.248" stroke-dasharray="5 4"/>
 <text x="1357.2" y="402.48" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="normal" transform="rotate(-90 1357.2 402.48)">отсек 18 мм под угловые штекеры: стенки на уровне монитора нет</text>
-<rect x="1311.44" y="74.88000000000004" width="10.4" height="442.0" fill="#ffffff" stroke="#b8860b" stroke-width="1.04" stroke-dasharray="4 3"/>
+<rect x="1311.44" y="360.88000000000005" width="10.4" height="353.6" fill="#ffffff" stroke="#b8860b" stroke-width="1.0" stroke-dasharray="4 3"/>
 <text x="1294.8" y="298.48" font-size="12" fill="#8a6d0b" text-anchor="end" font-weight="normal">окно под кабели 85 мм, ниже полки</text>
 <rect x="1311.44" y="438.88000000000005" width="20.8" height="31.200000000000003" fill="#d33" stroke="#600" stroke-width="0.8320000000000001"/>
 <text x="1294.8" y="462.28000000000003" font-size="12" fill="#600" text-anchor="end" font-weight="normal">HDMI 62</text>
@@ -57,4 +57,4 @@
 <rect x="777.92" y="782.08" width="87.36000000000001" height="15.600000000000001" fill="#ef6c00" stroke="#bf360c" stroke-width="1.04"/>
 <text x="821.6" y="865.2800000000001" font-size="13" fill="#bf360c" text-anchor="middle" font-weight="normal">RJ45</text>
 <text x="223.6" y="865.2800000000001" font-size="12" fill="#607d8b" text-anchor="middle" font-weight="normal">вентиляция под Pi</text>
-</svg>
+<rect x="1311.44" y="631.2800000000001" width="20.8" height="31.200000000000003" fill="#f90" stroke="#600" stroke-width="0.8"/><text x="1294.8" y="654.6800000000001" font-size="12" fill="#600" text-anchor="end">Type-C 25</text><rect x="1311.44" y="527.2800000000001" width="20.8" height="31.200000000000003" fill="#d33" stroke="#600" stroke-width="0.8"/><text x="1294.8" y="550.6800000000001" font-size="12" fill="#600" text-anchor="end">mini HDMI 45</text><rect x="1311.44" y="423.28000000000003" width="20.8" height="31.200000000000003" fill="#888" stroke="#600" stroke-width="0.8"/><text x="1294.8" y="446.68000000000006" font-size="12" fill="#600" text-anchor="end">наушники 65</text></svg>
