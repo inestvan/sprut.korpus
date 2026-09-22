@@ -163,7 +163,8 @@ echo(str("Pi ", pi_at_left ? "СЛЕВА, порты к верхнему бор�
          "; окно в борту: ", pi_ports_window ? "ДА" : "нет",
          "; свободно перед разъёмами USB/ETH: ", pi_edge_gap - pi_port_overhang, " мм"));
 echo(str("Держатели: просвет паза DC-DC ", dcdc_w + dcdc_gap_w, " x ", dcdc_pcb_t + dcdc_gap_t,
-         ", RS485 ", rs_w + rs_gap_w, " x ", rs_pcb_t + rs_gap_t));
+         ", RS485 ", rs_w + rs_gap_w, " x ", rs_pcb_t + rs_gap_t,
+         "; центры DC-DC ", dcdc_pos, " RS485 ", rs_pos, " поворот ", dcdc_rot));
 echo(str("Отсек разъёмов: свободно от торца монитора ", bay_w, " мм на высоту ", Z_fr - z_shelf, " мм"));
 
 // бобышки: по 3 в каждом боковом канале
@@ -201,10 +202,19 @@ xt_x  = conn_x0;
 bnc_x = conn_x0 + 38.0;
 rj_x  = conn_x0 + 70.0;
 
-// держатели модулей на задней стенке (центр платы, поворот)
-hold_x = pi_at_left ? x_cav0 + 125.0 : x_cav0 + 50.0;
-dcdc_pos = [hold_x, 46.0];  dcdc_rot = 0;
-rs_pos   = [hold_x, 84.0];  rs_rot   = 0;
+// Держатели модулей на задней стенке (центр платы, поворот паза).
+// При Pi слева оба стоят компактным блоком в правом нижнем углу, вплотную к
+// нижнему борту, длинной стороной вдоль Y: платы вдвигаются СВЕРХУ (с +Y).
+// Рядом вход питания XT60 и Type-C монитора в отсеке — короткие провода.
+hold_gap   = 2.0;                                   // зазор между основаниями держателей
+dcdc_hw    = (dcdc_w + dcdc_gap_w)/2 + 1.0;         // полуширина основания DC-DC
+rs_hw      = (rs_w   + rs_gap_w)/2   + 1.0;         // полуширина основания RS485
+dcdc_pos = pi_at_left ? [x_cav1 - 11.0 - dcdc_hw,                       wall + 1.0 + dcdc_l/2 + 4.0]
+                      : [x_cav0 + 50.0, 46.0];
+dcdc_rot = pi_at_left ? 90 : 0;
+rs_pos   = pi_at_left ? [dcdc_pos[0] - dcdc_hw - hold_gap - rs_hw,      wall + 1.0 + rs_l/2 + 4.0]
+                      : [x_cav0 + 50.0, 84.0];
+rs_rot   = pi_at_left ? 90 : 0;
 
 // =====================================================================
 //  ВСПОМОГАТЕЛЬНЫЕ
@@ -280,8 +290,9 @@ module box() {
     translate([0, H - wall - 1, 0]) slot_row(x_cav0 + 10, x_cav1 - 10, back_t + 4, back_t + 18);
     // вентиляция: задняя стенка — под процессором Pi и рядом с DC-DC
     for (i=[0:5]) back_slot(pi_x0 + 8 + i*6, pi_y0 + pi_l/2, 22);
-    for (i=[0:4]) back_slot(dcdc_pos[0] + dcdc_l/2 + 8 + i*6, dcdc_pos[1], 20);
-    for (i=[0:2]) back_slot(dcdc_pos[0] - dcdc_l/2 - 8 - i*6, dcdc_pos[1], 20);
+    if (pi_at_left) { for (i=[0:2]) back_slot(rs_pos[0] - rs_hw - 14 - i*6, 30, 44); }   // слева от блока держателей
+    else { for (i=[0:4]) back_slot(dcdc_pos[0] + dcdc_l/2 + 8 + i*6, dcdc_pos[1], 20);
+           for (i=[0:2]) back_slot(dcdc_pos[0] - dcdc_l/2 - 8 - i*6, dcdc_pos[1], 20); }
     // прорезь под колёсико меню монитора в наружном борту со стороны отсека
     if (wheel_slot) {
       wx = (mon_conn_side == "left") ? -1 : W - wall - 1;
