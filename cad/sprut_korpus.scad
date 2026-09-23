@@ -91,7 +91,7 @@ pi_port_overhang = 2.5;   // выступ USB/ETH за край платы
 pi_ports_window = false;  // true: порты Pi наружу через окно в борту; false: Pi полностью внутри
 pi_far_gap  = 4.0;        // край платы со стороны microSD до борта (карта выступает ~2.5 мм)
 pi_near_bay = true;       // true: Pi у стенки со стороны разъёмов монитора; false: у противоположной
-pi_hdmi_gap = 3.0;        // край платы с micro-HDMI/USB-C до внутренней стенки отсека (штекеры уходят в окно)
+pi_hdmi_free = 35.0;      // свободно от торца micro-HDMI/USB-C Pi до наружного борта (сквозь окно в отсек)
 pi_win_clr  = 1.5;        // зазор окна вокруг разъёмов Pi (только при pi_ports_window)
 
 // ---------------------------------------------------------------------
@@ -134,6 +134,7 @@ bz_csk_d = 6.4;        // потай
 bezel_rib_h = 2.5;     // ребро рамки, фиксирующее монитор по X со стороны отсека
 vesa = 100;            // 0 = без VESA; 75 или 100
 vesa_screw_d = 4.3;    // M4
+vesa_dx = -16;         // сдвиг центра VESA по ширине: правые отверстия левее платы Pi
 
 // ---------------------------------------------------------------------
 // ПРОИЗВОДНЫЕ РАЗМЕРЫ
@@ -165,6 +166,7 @@ echo(str("Полость под монитор: ", cav_w, " x ", cav_h, ", гл�
 echo(str("Pi ", pi_at_left ? "СЛЕВА" : "СПРАВА", pi_near_bay ? " у стенки отсека разъёмов монитора" : "",
          ", плата X ", pi_x0, "..", pi_x0 + pi_w, " Y ", pi_y0, "..", pi_y0 + pi_l,
          ", USB/ETH к ", pi_rot == 180 ? "верхнему" : "нижнему", " борту",
+         pi_near_bay ? str("; перед micro-HDMI/USB-C свободно ", pi_hdmi_free, " мм (до стенки отсека ", pi_gap_side, ")") : "",
          "; окно в борту: ", pi_ports_window ? "ДА" : "нет",
          "; свободно перед разъёмами USB/ETH: ", pi_edge_gap - pi_port_overhang, " мм"));
 echo(str("Держатели: просвет паза DC-DC ", dcdc_w + dcdc_gap_w, " x ", dcdc_pcb_t + dcdc_gap_t,
@@ -193,7 +195,10 @@ boss_pts = concat(
 // напротив окна в стенке — кабель к монитору получается ~10 см.
 pi_rot = (mon_conn_side == "right") ? 180 : 0;
 pi_at_left = pi_near_bay ? (mon_conn_side == "left") : (mon_conn_side == "right");
-pi_gap_side = pi_near_bay ? pi_hdmi_gap : 2.0;
+// зазор от края платы до внутренней стенки: у отсека считается от наружного борта
+pi_gap_side = !pi_near_bay ? 2.0
+            : (mon_conn_side == "right") ? x_cav1 - (W - wall - pi_hdmi_free)
+            :                              (wall + pi_hdmi_free) - x_cav0;
 pi_x0 = pi_at_left ? x_cav0 + pi_gap_side : x_cav1 - pi_gap_side - pi_w;
 // зазор перед разъёмами USB/ETH: вся высота полости, что осталась от платы
 pi_edge_gap = pi_ports_window ? 1.0 : (cav_h - pi_l - pi_far_gap);
@@ -219,7 +224,7 @@ hold_gap   = 2.0;                                   // зазор между о�
 dcdc_hw    = (dcdc_w + dcdc_gap_w)/2 + 1.0;         // полуширина основания DC-DC
 rs_hw      = (rs_w   + rs_gap_w)/2   + 1.0;         // полуширина основания RS485
 hold_right = pi_at_left ? x_cav1 - 11.0
-           : (vesa > 0 ? min(pi_x0, W/2 + vesa/2 - vesa_screw_d/2) : pi_x0) - 3.0;
+           : (vesa > 0 ? min(pi_x0, W/2 + vesa_dx + vesa/2 - vesa_screw_d/2) : pi_x0) - 3.0;
 dcdc_pos = [hold_right - dcdc_hw,                        wall + 1.0 + dcdc_l/2 + 4.0];
 rs_pos   = [dcdc_pos[0] - dcdc_hw - hold_gap - rs_hw,     wall + 1.0 + rs_l/2 + 4.0];
 dcdc_rot = 90;
@@ -299,7 +304,9 @@ module box() {
     translate([0, H - wall - 1, 0]) slot_row(x_cav0 + 10, x_cav1 - 10, back_t + 4, back_t + 18);
     // вентиляция: задняя стенка — под процессором Pi и рядом с DC-DC
     for (i=[0:5]) back_slot(pi_x0 + 8 + i*6, pi_y0 + pi_l/2, 22);
-    for (i=[0:1]) back_slot(rs_pos[0] - rs_hw - 8 - i*6, 30, 40);   // слева от блока держателей
+    // над блоком держателей (зона вдвигания плат, щели ей не мешают)
+    for (x = [rs_pos[0] - 5, rs_pos[0] + 5, dcdc_pos[0] - 6, dcdc_pos[0], dcdc_pos[0] + 6])
+      back_slot(x, max(dcdc_pos[1] + dcdc_l/2, rs_pos[1] + rs_l/2) + 22, 26);
     // прорезь под колёсико меню монитора в наружном борту со стороны отсека
     if (wheel_slot) {
       wx = (mon_conn_side == "left") ? -1 : W - wall - 1;
@@ -308,7 +315,7 @@ module box() {
         hull() for (s=[-1,1]) translate([0, s*(wheel_slot_l - wheel_slot_h)/2]) circle(d=wheel_slot_h);
     }
     // VESA
-    if (vesa > 0) for (sx=[-1,1], sy=[-1,1]) translate([W/2 + sx*vesa/2, H/2 + sy*vesa/2, -1]) cylinder(d=vesa_screw_d, h=back_t + 2);
+    if (vesa > 0) for (sx=[-1,1], sy=[-1,1]) translate([W/2 + vesa_dx + sx*vesa/2, H/2 + sy*vesa/2, -1]) cylinder(d=vesa_screw_d, h=back_t + 2);
   }
 }
 
