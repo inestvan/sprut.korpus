@@ -58,7 +58,8 @@ drv_zone = 12.0;   // свободная глубина за монитором 
 // Со стороны разъёмов вместо узкого канала — отсек шириной bay_w под угловые
 // штекеры; на уровне монитора там нет стенки; ниже полки в стенке окно под кабели.
 mon_conn_side = "right";    // "left" | "right" — сторона разъёмов, вид спереди
-mon_conn_y    = [12, 80];   // окно под кабели в стенке ниже полки (от нижнего края монитора)
+mon_conn_y    = [5, 80];    // окно под кабели в стенке ниже полки (от нижнего края монитора);
+                            // при Pi у отсека через него же проходят штекеры micro-HDMI/USB-C Pi
 mon_hdmi_y    = 45;         // центр mini HDMI (макет)
 mon_usbc_y    = 25;         // центр Type-C (макет)
 mon_jack_y    = 65;         // гнездо наушников 3.5 мм (макет, не используется)
@@ -88,7 +89,9 @@ pi_usb2_y = 9.0;  pi_usb3_y = 27.0;  pi_eth_y = 45.75;   // центры по к
 pi_usb_w  = 13.1; pi_usb_h = 16.0;   pi_eth_w = 16.0; pi_eth_h = 13.5;
 pi_port_overhang = 2.5;   // выступ USB/ETH за край платы
 pi_ports_window = false;  // true: порты Pi наружу через окно в борту; false: Pi полностью внутри
-pi_far_gap  = 1.5;        // дальний край платы (microSD) до верхнего борта
+pi_far_gap  = 4.0;        // край платы со стороны microSD до борта (карта выступает ~2.5 мм)
+pi_near_bay = true;       // true: Pi у стенки со стороны разъёмов монитора; false: у противоположной
+pi_hdmi_gap = 3.0;        // край платы с micro-HDMI/USB-C до внутренней стенки отсека (штекеры уходят в окно)
 pi_win_clr  = 1.5;        // зазор окна вокруг разъёмов Pi (только при pi_ports_window)
 
 // ---------------------------------------------------------------------
@@ -159,7 +162,9 @@ conn_y1 = wall + clr + mon_conn_y[1];
 
 echo(str("НАРУЖНЫЙ ГАБАРИТ: ", W, " x ", H, " x ", D_total, " мм (ШxВxГ), рамка ", bezel_t, " мм"));
 echo(str("Полость под монитор: ", cav_w, " x ", cav_h, ", глубина коробки ", D_in));
-echo(str("Pi ", pi_at_left ? "СЛЕВА, порты к верхнему борту" : "СПРАВА, порты к нижнему борту",
+echo(str("Pi ", pi_at_left ? "СЛЕВА" : "СПРАВА", pi_near_bay ? " у стенки отсека разъёмов монитора" : "",
+         ", плата X ", pi_x0, "..", pi_x0 + pi_w, " Y ", pi_y0, "..", pi_y0 + pi_l,
+         ", USB/ETH к ", pi_rot == 180 ? "верхнему" : "нижнему", " борту",
          "; окно в борту: ", pi_ports_window ? "ДА" : "нет",
          "; свободно перед разъёмами USB/ETH: ", pi_edge_gap - pi_port_overhang, " мм"));
 echo(str("Держатели: просвет паза DC-DC ", dcdc_w + dcdc_gap_w, " x ", dcdc_pcb_t + dcdc_gap_t,
@@ -178,24 +183,27 @@ boss_pts = concat(
   [for (y = (mon_conn_side == "left")  ? boss_ys_bay : boss_ys_ch) [wall + ch_w/2, y]],
   [for (y = (mon_conn_side == "right") ? boss_ys_bay : boss_ys_ch) [W - wall - ch_w/2, y]]);
 
-// Raspberry Pi стоит у стороны, ПРОТИВОПОЛОЖНОЙ отсеку разъёмов монитора,
-// так её длинный торец с USB-C/micro-HDMI/аудио всегда смотрит внутрь корпуса.
-//   отсек слева  -> Pi справа, торец USB/ETH к нижнему борту (pi_rot = 0):
-//                   мир_x = pi_x0 + py, мир_y = pi_y0 + (85 - px)
-//   отсек справа -> Pi слева, торец USB/ETH к ВЕРХНЕМУ борту (pi_rot = 180):
+// Raspberry Pi. Длинный торец с USB-C / micro-HDMI / аудио всегда смотрит в
+// сторону отсека разъёмов монитора:
+//   отсек справа -> pi_rot = 180: торец HDMI вправо, USB/ETH к ВЕРХНЕМУ борту,
 //                   мир_x = pi_x0 + (56 - py), мир_y = pi_y0 + px
-pi_at_left = (mon_conn_side == "right");
-pi_rot = pi_at_left ? 180 : 0;
-pi_x0 = pi_at_left ? x_cav0 + 2.0 : x_cav1 - 2.0 - pi_w;
+//   отсек слева  -> pi_rot = 0:   торец HDMI влево,  USB/ETH к нижнему борту,
+//                   мир_x = pi_x0 + py,        мир_y = pi_y0 + (85 - px)
+// pi_near_bay = true: плата стоит у стенки отсека, её micro-HDMI и USB-C
+// напротив окна в стенке — кабель к монитору получается ~10 см.
+pi_rot = (mon_conn_side == "right") ? 180 : 0;
+pi_at_left = pi_near_bay ? (mon_conn_side == "left") : (mon_conn_side == "right");
+pi_gap_side = pi_near_bay ? pi_hdmi_gap : 2.0;
+pi_x0 = pi_at_left ? x_cav0 + pi_gap_side : x_cav1 - pi_gap_side - pi_w;
 // зазор перед разъёмами USB/ETH: вся высота полости, что осталась от платы
 pi_edge_gap = pi_ports_window ? 1.0 : (cav_h - pi_l - pi_far_gap);
-pi_y0 = pi_at_left ? wall + pi_far_gap : wall + pi_edge_gap;
+pi_y0 = (pi_rot == 180) ? wall + pi_far_gap : wall + pi_edge_gap;
 function pi_pt(px, py) = (pi_rot == 0) ? [pi_x0 + py, pi_y0 + pi_l - px] : [pi_x0 + pi_w - py, pi_y0 + px];
 pi_holes = [for (px=[pi_hole_off, pi_hole_off + pi_hole_dx], py=[pi_hole_off, pi_hole_off + pi_hole_dy]) pi_pt(px, py)];
 pi_ports_y = (pi_rot == 0) ? pi_y0 - pi_port_overhang : pi_y0 + pi_l + pi_port_overhang;   // плоскость торцов USB/ETH
 
-// разъёмы на нижнем борту: X центра, Z центра. При Pi слева сдвинуты правее,
-// чтобы их тела внутри корпуса не попадали под плату Pi.
+// разъёмы на нижнем борту: X центра, Z центра. Ставятся с той стороны, где НЕТ Pi,
+// чтобы их тела внутри корпуса не попадали под плату.
 conn_z = back_t + 12.0;
 conn_x0 = pi_at_left ? x_cav0 + 75.0 : x_cav0 + 18.0;
 xt_x  = conn_x0;
@@ -203,18 +211,19 @@ bnc_x = conn_x0 + 38.0;
 rj_x  = conn_x0 + 70.0;
 
 // Держатели модулей на задней стенке (центр платы, поворот паза).
-// При Pi слева оба стоят компактным блоком в правом нижнем углу, вплотную к
-// нижнему борту, длинной стороной вдоль Y: платы вдвигаются СВЕРХУ (с +Y).
-// Рядом вход питания XT60 и Type-C монитора в отсеке — короткие провода.
+// Оба стоят компактным блоком вплотную к нижнему борту, длинной стороной
+// вдоль Y, платы вдвигаются СВЕРХУ (с +Y). DC-DC ближе к Pi, RS485 ближе к RJ45.
+// Правая граница блока: при Pi справа — левее Pi и отверстия VESA, при Pi слева —
+// в 11 мм от стенки отсека (полоса под кабели монитора).
 hold_gap   = 2.0;                                   // зазор между основаниями держателей
 dcdc_hw    = (dcdc_w + dcdc_gap_w)/2 + 1.0;         // полуширина основания DC-DC
 rs_hw      = (rs_w   + rs_gap_w)/2   + 1.0;         // полуширина основания RS485
-dcdc_pos = pi_at_left ? [x_cav1 - 11.0 - dcdc_hw,                       wall + 1.0 + dcdc_l/2 + 4.0]
-                      : [x_cav0 + 50.0, 46.0];
-dcdc_rot = pi_at_left ? 90 : 0;
-rs_pos   = pi_at_left ? [dcdc_pos[0] - dcdc_hw - hold_gap - rs_hw,      wall + 1.0 + rs_l/2 + 4.0]
-                      : [x_cav0 + 50.0, 84.0];
-rs_rot   = pi_at_left ? 90 : 0;
+hold_right = pi_at_left ? x_cav1 - 11.0
+           : (vesa > 0 ? min(pi_x0, W/2 + vesa/2 - vesa_screw_d/2) : pi_x0) - 3.0;
+dcdc_pos = [hold_right - dcdc_hw,                        wall + 1.0 + dcdc_l/2 + 4.0];
+rs_pos   = [dcdc_pos[0] - dcdc_hw - hold_gap - rs_hw,     wall + 1.0 + rs_l/2 + 4.0];
+dcdc_rot = 90;
+rs_rot   = 90;
 
 // =====================================================================
 //  ВСПОМОГАТЕЛЬНЫЕ
@@ -290,9 +299,7 @@ module box() {
     translate([0, H - wall - 1, 0]) slot_row(x_cav0 + 10, x_cav1 - 10, back_t + 4, back_t + 18);
     // вентиляция: задняя стенка — под процессором Pi и рядом с DC-DC
     for (i=[0:5]) back_slot(pi_x0 + 8 + i*6, pi_y0 + pi_l/2, 22);
-    if (pi_at_left) { for (i=[0:2]) back_slot(rs_pos[0] - rs_hw - 14 - i*6, 30, 44); }   // слева от блока держателей
-    else { for (i=[0:4]) back_slot(dcdc_pos[0] + dcdc_l/2 + 8 + i*6, dcdc_pos[1], 20);
-           for (i=[0:2]) back_slot(dcdc_pos[0] - dcdc_l/2 - 8 - i*6, dcdc_pos[1], 20); }
+    for (i=[0:1]) back_slot(rs_pos[0] - rs_hw - 8 - i*6, 30, 40);   // слева от блока держателей
     // прорезь под колёсико меню монитора в наружном борту со стороны отсека
     if (wheel_slot) {
       wx = (mon_conn_side == "left") ? -1 : W - wall - 1;
