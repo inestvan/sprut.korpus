@@ -11,6 +11,7 @@
 | `preview/*.png` | рендеры для проверки |
 | `preview/scheme_placement.png` | схема: что куда ставится в корпусе (исходник `docs/scheme_placement.svg`) |
 | `preview/scheme_wiring.png` | схема проводки и порядок сборки (исходник `docs/scheme_wiring.svg`) |
+| `tools/diagrams/` | генераторы схем: `python3 tools/diagrams/wiring.py` пишет SVG в `docs/`, `node tools/diagrams/shot.mjs` делает PNG |
 | `docs/components.md` | размеры компонентов, источники, что нужно проверить |
 
 Наружный габарит при текущих параметрах: **272.2 x 153.4 x 59 мм** (Ш x В x Г).
